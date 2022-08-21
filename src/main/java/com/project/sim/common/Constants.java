@@ -4,7 +4,7 @@ public class Constants
 {
     public enum SimStatus
     {
-        ACTIVATE,
+        ACTIVE,
         DEACTIVATED
     }
     
