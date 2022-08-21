@@ -1,4 +1,3 @@
-
 package com.project.sim.repository;
 
 import java.util.Calendar;
@@ -10,7 +9,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Propagation;
@@ -20,15 +19,20 @@ import com.project.sim.common.Constants.KYC;
 import com.project.sim.common.Constants.RegistrationStatus;
 import com.project.sim.common.Constants.ServiceProvider;
 import com.project.sim.common.Constants.SimStatus;
+import com.project.sim.exceptions.SimCardNotFoundException;
 import com.project.sim.model.SimCard;
+import com.project.sim.service.SimCardService;
 
 @RunWith(SpringRunner.class)
-@DataJpaTest
+@SpringBootTest
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
 public class SimCardRepositoryTest
 {
     @Autowired
     SimCardRepository simCardRepository;
+    
+    @Autowired
+    SimCardService simCardService;
     
     @Test
     public void shouldSaveSimCardInDBAnBeAbleToFetchIt()
@@ -42,6 +46,45 @@ public class SimCardRepositoryTest
         
         List<SimCard> simCardInDB = simCardRepository.findBySimCardNumber("abc4-1268-1167");
         Assert.assertEquals(1, simCardInDB.size());
+    }
+    
+    @Test
+    public void shouldUpdateExistingSimCardInDB() throws SimCardNotFoundException
+    {
+        Date date = new Date();
+        date.setTime(16754883939L);
+        SimCard simCard = getSimCardForTest("abc4-1268-1167", "909099695", SimStatus.ACTIVE,
+                date, RegistrationStatus.REGISTERED, KYC.DONE, ServiceProvider.IDEA, "Karthik Iyer");
+        simCardRepository.save(simCard);
+        SimCard updatedSim = getSimCardForTest("abc4-1268-1167", "909099697", SimStatus.DEACTIVATED,
+                date, RegistrationStatus.REGISTERED, KYC.DONE, ServiceProvider.IDEA, "Karthik");
+        
+        simCardService.updateSimCard(simCard.getSimCardNumber(), updatedSim);
+        
+        List<SimCard> simCardsInDB = simCardRepository.findAll();
+        Assert.assertEquals(1, simCardsInDB.size());
+        SimCard theSimCard = simCardsInDB.get(0);
+        Assert.assertEquals(simCard.getSimCardNumber(), theSimCard.getSimCardNumber());
+        Assert.assertEquals(updatedSim.getMobileNumber(), theSimCard.getMobileNumber());
+        Assert.assertEquals(updatedSim.getStatus(), theSimCard.getStatus());
+        Assert.assertEquals(updatedSim.getFullName(), theSimCard.getFullName());
+    }
+    
+    @Test
+    public void shouldCreateNewSimCardWhenUpdateMethodIsCalledWithNewSimNumber() throws SimCardNotFoundException
+    {
+        Date date = new Date();
+        date.setTime(16754883939L);
+        SimCard simCard = getSimCardForTest("abc4-1268-1167", "909099695", SimStatus.ACTIVE,
+                date, RegistrationStatus.REGISTERED, KYC.DONE, ServiceProvider.IDEA, "Karthik Iyer");
+        simCardRepository.save(simCard);
+        SimCard updatedSim = getSimCardForTest("abd4-2269-4387", "909099697", SimStatus.DEACTIVATED,
+                date, RegistrationStatus.REGISTERED, KYC.DONE, ServiceProvider.IDEA, "Karthik");
+        
+        simCardService.updateSimCard(simCard.getSimCardNumber(), updatedSim);
+        
+        List<SimCard> simCardsInDB = simCardRepository.findAll();
+        Assert.assertEquals(2, simCardsInDB.size());
     }
     
     @Test
