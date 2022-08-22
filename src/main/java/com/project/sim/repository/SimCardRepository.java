@@ -13,6 +13,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.project.sim.model.SimCard;
 
@@ -27,6 +28,7 @@ public interface SimCardRepository extends JpaRepository<SimCard,Long>
     List<SimCard> findAllSimsWhichExpireWithinNext30days(
             @Param("currentTime") Date currentTime);
     
+    @Transactional
     @Modifying
     @Query("UPDATE SimCard a SET a.mobileNumber = :mobileNumber, a.status = :status, a.expiryDate = :expiryDate," +
             " a.registrationState = :registrationState, a.kyc = :kyc, a.serviceProvider = :serviceProvider, a.fullName = :fullName WHERE a.simCardNumber = :existingSimCardNumber")

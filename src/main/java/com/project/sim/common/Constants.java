@@ -33,4 +33,10 @@ public class Constants
         SIM_CARD_ALREADY_EXISTS,
         SIM_CARD_NOT_FOUND
     }
+    
+    public enum UPDATE_OPERATION_TYPE
+    {
+        NEW_ROW_SAVED,
+        UPDATED_EXISTING_ROW
+    }
 }

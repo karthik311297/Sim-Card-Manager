@@ -19,6 +19,7 @@ import com.project.sim.common.Constants.KYC;
 import com.project.sim.common.Constants.RegistrationStatus;
 import com.project.sim.common.Constants.ServiceProvider;
 import com.project.sim.common.Constants.SimStatus;
+import com.project.sim.exceptions.SimCardAlreadyExistsException;
 import com.project.sim.exceptions.SimCardNotFoundException;
 import com.project.sim.model.SimCard;
 import com.project.sim.service.SimCardService;
@@ -49,7 +50,7 @@ public class SimCardRepositoryTest
     }
     
     @Test
-    public void shouldUpdateExistingSimCardInDB() throws SimCardNotFoundException
+    public void shouldUpdateExistingSimCardInDB() throws SimCardNotFoundException, SimCardAlreadyExistsException
     {
         Date date = new Date();
         date.setTime(16754883939L);
@@ -71,7 +72,7 @@ public class SimCardRepositoryTest
     }
     
     @Test
-    public void shouldCreateNewSimCardWhenUpdateMethodIsCalledWithNewSimNumber() throws SimCardNotFoundException
+    public void shouldCreateNewSimCardWhenUpdateMethodIsCalledWithNewSimNumber() throws SimCardNotFoundException, SimCardAlreadyExistsException
     {
         Date date = new Date();
         date.setTime(16754883939L);
